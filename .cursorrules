@@ -1,0 +1,100 @@
+# ENS x402 Discovery - Cursor Rules
+
+## Project Overview
+This project integrates ENS (Ethereum Name Service) with x402 agentic payment protocol to enable identity-verified service discovery. Services register with ENS names and become discoverable by human-readable identities.
+
+## Architecture Principles
+- **Backend-First**: Primary focus on backend infrastructure (smart contracts, APIs, SDKs)
+- **Simple Frontend**: Minimal frontend for demonstration and testing
+- **Progressive Development**: Small, incremental commits. No large code dumps.
+- **Modular Design**: Separate concerns (contracts, APIs, SDKs, frontend)
+
+## Code Style & Standards
+
+### General
+- Use TypeScript for backend services and SDKs
+- Use Solidity for smart contracts (0.8.x)
+- Follow existing x402 patterns and conventions
+- Write clear, self-documenting code
+- Include JSDoc comments for public APIs
+
+### Smart Contracts
+- Use OpenZeppelin contracts where possible
+- Follow Solidity style guide
+- Include NatSpec documentation
+- Write comprehensive tests before deployment
+
+### Backend Services
+- Use Express.js or similar lightweight framework
+- TypeScript strict mode enabled
+- Use async/await, avoid callbacks
+- Implement proper error handling
+- Include request validation
+
+### SDKs
+- Follow x402 SDK patterns (see x402/typescript/packages)
+- Support TypeScript, Go, and Python
+- Include comprehensive examples
+- Document all public APIs
+
+## File Organization
+```
+ens-x402-discovery/
+├── contracts/          # Smart contracts (Solidity)
+├── backend/            # API services (TypeScript)
+├── sdk/                # Client SDKs (TypeScript, Go, Python)
+├── frontend/           # Simple demo UI (minimal)
+├── docs/               # Documentation
+└── tests/              # Integration tests
+```
+
+## Commit Guidelines
+- **Small, focused commits**: One logical change per commit
+- **Descriptive messages**: Clear what and why
+- **Progressive development**: Build incrementally
+- **Test before commit**: Ensure code compiles and tests pass
+- **No large file dumps**: Break into logical chunks
+
+## Development Workflow
+1. Create feature branch from main
+2. Make small, incremental changes
+3. Test thoroughly before committing
+4. Write clear commit messages
+5. Push frequently (small commits)
+6. Create PR when feature is complete
+
+## Dependencies
+- **Smart Contracts**: Hardhat or Foundry
+- **Backend**: Node.js, TypeScript, Express
+- **SDKs**: Follow x402 SDK structure
+- **Testing**: Jest (TypeScript), Hardhat (contracts)
+
+## Key Integration Points
+- **ENS**: Use @ensdomains/ensjs or ethers.js for ENS resolution
+- **x402**: Import from @x402 packages (core, evm, extensions)
+- **Ethereum**: Use viem or ethers.js for blockchain interactions
+
+## Testing Requirements
+- Unit tests for all smart contracts
+- Integration tests for API endpoints
+- SDK tests with mock data
+- End-to-end tests for discovery flow
+
+## Documentation
+- README.md with setup instructions
+- API documentation (OpenAPI/Swagger)
+- SDK usage examples
+- Architecture diagrams
+
+## Security Considerations
+- Validate all ENS resolutions
+- Verify ownership before registration
+- Sanitize all user inputs
+- Use secure random for nonces
+- Follow x402 security patterns
+
+## Performance
+- Cache ENS resolutions when appropriate
+- Optimize smart contract gas usage
+- Use efficient data structures
+- Monitor API response times
