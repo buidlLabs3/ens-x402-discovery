@@ -12,10 +12,29 @@ artifacts/
 cache/
 typechain-types/
 
-# Environment variables
+# Environment variables and secrets
 .env
 .env.local
 .env.*.local
+.env.production
+.env.development
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets
+
+# Private keys and wallets
+*.keystore
+*.wallet
+private-keys/
+wallets/
+
+# API keys and tokens
+api-keys.txt
+tokens.txt
+*.token
 
 # IDE
 .vscode/
@@ -43,3 +62,7 @@ coverage/
 tmp/
 temp/
 *.tmp
+
+# Hardhat
+.openzeppelin/
+deployments/localhost/

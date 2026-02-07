@@ -85,6 +85,64 @@ ENS x402 Discovery integrates ENS identity with x402 agentic payments to create 
 - **ENS**: @ensdomains/ensjs or ethers.js
 - **x402**: @x402 packages
 
+## Directory Structure
+
+### Smart Contracts (`contracts/`)
+Contains Solidity smart contracts for ENS x402 Discovery.
+
+**Contracts:**
+- `ENSResolverExtension.sol` - Extension to ENS resolver for storing x402 service metadata
+- `ServiceRegistry.sol` - On-chain registry mapping ENS names to x402 service endpoints
+
+**Development:**
+```bash
+# Compile contracts
+npx hardhat compile
+
+# Run tests
+npx hardhat test
+
+# Deploy to testnet
+npx hardhat run scripts/deploy.ts --network sepolia
+```
+
+### Backend API (`backend/`)
+TypeScript/Express.js backend for ENS x402 Discovery.
+
+**Structure:**
+```
+backend/
+├── src/
+│   ├── api/          # API routes
+│   ├── services/     # Business logic
+│   │   ├── ens/      # ENS resolution service
+│   │   └── x402/     # x402 integration service
+│   └── utils/        # Utilities
+└── tests/            # API tests
+```
+
+**API Endpoints:**
+- `GET /health` - Health check
+- `GET /api/services/:ensName` - Get service by ENS name
+- `GET /api/services` - List all services
+- `POST /api/services` - Register new service
+- `GET /api/services/search` - Search services
+
+**Development:**
+```bash
+# Start dev server
+npm run dev
+
+# Run tests
+npm test
+```
+
+### SDKs (`sdk/`)
+Client SDKs for TypeScript, Go, and Python.
+
+### Frontend (`frontend/`)
+Minimal demo UI for service registration and discovery.
+
 ## Security Considerations
 
 - Validate all ENS resolutions
@@ -93,3 +151,5 @@ ENS x402 Discovery integrates ENS identity with x402 agentic payments to create 
 - Use secure random for nonces
 - Follow x402 security patterns
 - Smart contract security best practices
+- Never commit private keys or secrets
+- Use environment variables for sensitive configuration

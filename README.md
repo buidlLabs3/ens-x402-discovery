@@ -166,4 +166,40 @@ See [.cursorrules](./.cursorrules) for development guidelines.
 
 ## Status
 
-🚧 **Early Development** - This project is in active development.
+**Early Development** - This project is in active development.
+
+## Setup
+
+### Installation
+
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+2. Set up Hardhat for smart contracts:
+   ```bash
+   npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
+   npx hardhat init
+   ```
+
+3. Add ENS and x402 dependencies:
+   ```bash
+   npm install @ensdomains/ensjs ethers
+   npm install @x402/core @x402/evm @x402/extensions
+   ```
+
+4. Set up environment variables:
+   ```bash
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
+### Development Workflow
+
+1. Create feature branch: `git checkout -b feature/name`
+2. Make small, focused changes
+3. Test thoroughly before committing
+4. Commit with clear message
+5. Push frequently (small commits)
+6. Create PR when feature complete
