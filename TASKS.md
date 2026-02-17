@@ -3,19 +3,19 @@
 ## Phase 1: Foundation & Setup (Week 1-2)
 
 ### 1.1 Project Setup
-- [ ] Initialize repository structure
-- [ ] Set up TypeScript configuration
-- [ ] Configure Hardhat/Foundry for smart contracts
-- [ ] Set up testing framework (Jest, Hardhat tests)
-- [ ] Create initial README with project overview
-- [ ] Set up CI/CD basics (GitHub Actions)
+- [x] Initialize repository structure
+- [x] Set up TypeScript configuration
+- [x] Configure Hardhat/Foundry for smart contracts
+- [x] Set up testing framework (Jest, Hardhat tests)
+- [x] Create initial README with project overview
+- [x] Set up CI/CD basics (GitHub Actions)
 
 ### 1.2 Research & Design
-- [ ] Study ENS resolver system and extension patterns
-- [ ] Review x402 Bazaar discovery extension
-- [ ] Design smart contract architecture
-- [ ] Design API structure
-- [ ] Create technical specification document
+- [x] Study ENS resolver system and extension patterns
+- [x] Review x402 Bazaar discovery extension
+- [x] Design smart contract architecture
+- [x] Design API structure
+- [x] Create technical specification document
 
 ## Phase 2: Smart Contracts (Week 3-5)
 
