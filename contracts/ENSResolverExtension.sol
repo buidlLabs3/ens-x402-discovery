@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-interface IENSRegistry {
-    function owner(bytes32 node) external view returns (address);
-}
+import {IENSRegistry} from "./interfaces/IENSRegistry.sol";
 
 contract ENSResolverExtension {
     struct ServiceMetadata {
@@ -15,16 +13,20 @@ contract ENSResolverExtension {
         uint256 updatedAt;
     }
 
+    error InvalidENSRegistry();
     error NotNodeOwner(bytes32 node, address caller);
     error EmptyEndpoint();
 
     event X402EndpointSet(bytes32 indexed node, string endpoint, address indexed owner);
+    event X402EndpointCleared(bytes32 indexed node, address indexed owner);
 
     IENSRegistry public immutable ensRegistry;
     mapping(bytes32 => ServiceMetadata) private metadataByNode;
 
     constructor(address ensRegistryAddress) {
-        require(ensRegistryAddress != address(0), "registry address required");
+        if (ensRegistryAddress == address(0)) {
+            revert InvalidENSRegistry();
+        }
         ensRegistry = IENSRegistry(ensRegistryAddress);
     }
 
@@ -36,9 +38,7 @@ contract ENSResolverExtension {
         string calldata description,
         string calldata capabilitiesJson
     ) external {
-        if (ensRegistry.owner(node) != msg.sender) {
-            revert NotNodeOwner(node, msg.sender);
-        }
+        _requireNodeOwner(node);
         if (bytes(endpoint).length == 0) {
             revert EmptyEndpoint();
         }
@@ -55,7 +55,19 @@ contract ENSResolverExtension {
         emit X402EndpointSet(node, endpoint, msg.sender);
     }
 
+    function clearX402Endpoint(bytes32 node) external {
+        _requireNodeOwner(node);
+        delete metadataByNode[node];
+        emit X402EndpointCleared(node, msg.sender);
+    }
+
     function getX402Endpoint(bytes32 node) external view returns (ServiceMetadata memory) {
         return metadataByNode[node];
+    }
+
+    function _requireNodeOwner(bytes32 node) private view {
+        if (ensRegistry.owner(node) != msg.sender) {
+            revert NotNodeOwner(node, msg.sender);
+        }
     }
 }

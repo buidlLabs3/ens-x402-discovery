@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import {IENSRegistry} from "./interfaces/IENSRegistry.sol";
+
 contract ServiceRegistry {
     struct ServiceRecord {
         bytes32 ensNode;
@@ -15,7 +17,8 @@ contract ServiceRegistry {
         uint256 updatedAt;
     }
 
-    error NotServiceOwner(bytes32 node, address caller);
+    error InvalidENSRegistry();
+    error NotNodeOwner(bytes32 node, address caller);
     error EmptyEnsName();
     error EmptyEndpoint();
     error ServiceNotFound(bytes32 node);
@@ -25,6 +28,14 @@ contract ServiceRegistry {
 
     mapping(bytes32 => ServiceRecord) private services;
     bytes32[] private allServiceNodes;
+    IENSRegistry public immutable ensRegistry;
+
+    constructor(address ensRegistryAddress) {
+        if (ensRegistryAddress == address(0)) {
+            revert InvalidENSRegistry();
+        }
+        ensRegistry = IENSRegistry(ensRegistryAddress);
+    }
 
     function registerService(
         bytes32 ensNode,
@@ -35,6 +46,8 @@ contract ServiceRegistry {
         string calldata description,
         string calldata capabilitiesJson
     ) external {
+        _requireNodeOwner(ensNode);
+
         if (bytes(ensName).length == 0) {
             revert EmptyEnsName();
         }
@@ -44,10 +57,6 @@ contract ServiceRegistry {
 
         ServiceRecord storage existing = services[ensNode];
         bool isNew = existing.owner == address(0);
-        if (!isNew && existing.owner != msg.sender) {
-            revert NotServiceOwner(ensNode, msg.sender);
-        }
-
         if (isNew) {
             allServiceNodes.push(ensNode);
         }
@@ -73,9 +82,7 @@ contract ServiceRegistry {
         if (service.owner == address(0)) {
             revert ServiceNotFound(ensNode);
         }
-        if (service.owner != msg.sender) {
-            revert NotServiceOwner(ensNode, msg.sender);
-        }
+        _requireNodeOwner(ensNode);
 
         service.active = false;
         service.updatedAt = block.timestamp;
@@ -133,5 +140,11 @@ contract ServiceRegistry {
         }
 
         return (items, activeCount);
+    }
+
+    function _requireNodeOwner(bytes32 ensNode) private view {
+        if (ensRegistry.owner(ensNode) != msg.sender) {
+            revert NotNodeOwner(ensNode, msg.sender);
+        }
     }
 }

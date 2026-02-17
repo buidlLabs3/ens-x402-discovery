@@ -20,20 +20,20 @@
 ## Phase 2: Smart Contracts (Week 3-5)
 
 ### 2.1 ENS Resolver Extension
-- [ ] Design resolver extension interface
-- [ ] Implement resolver extension contract
-- [ ] Add functions: setX402Endpoint, getX402Endpoint
-- [ ] Add metadata storage (description, capabilities)
-- [ ] Write unit tests
+- [x] Design resolver extension interface
+- [x] Implement resolver extension contract
+- [x] Add functions: setX402Endpoint, getX402Endpoint
+- [x] Add metadata storage (description, capabilities)
+- [x] Write unit tests
 - [ ] Deploy to testnet
 
 ### 2.2 Service Registry Contract
-- [ ] Design registry contract structure
-- [ ] Implement service registration function
-- [ ] Implement ownership verification
-- [ ] Add service lookup functions
+- [x] Design registry contract structure
+- [x] Implement service registration function
+- [x] Implement ownership verification
+- [x] Add service lookup functions
 - [ ] Add reputation/rating system (optional)
-- [ ] Write comprehensive tests
+- [x] Write comprehensive tests
 - [ ] Deploy to testnet
 
 ### 2.3 Integration & Testing
