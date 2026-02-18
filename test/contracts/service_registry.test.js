@@ -133,4 +133,75 @@ describe("ServiceRegistry", function () {
     expect(pagedTotal).to.equal(1n);
     expect(paged.length).to.equal(0);
   });
+
+  it("supports one rating per rater and computes average bps", async function () {
+    const { ownerA, ownerB, other, nodeA, serviceRegistry } = await deployFixture();
+
+    await registerService(
+      serviceRegistry,
+      ownerA,
+      nodeA,
+      "weather-api.eth",
+      "https://api.example.com/weather"
+    );
+
+    await serviceRegistry.connect(ownerB).rateService(nodeA, 5);
+    await serviceRegistry.connect(other).rateService(nodeA, 3);
+
+    await expect(serviceRegistry.connect(other).rateService(nodeA, 4))
+      .to.be.revertedWithCustomError(serviceRegistry, "AlreadyRated")
+      .withArgs(nodeA, other.address);
+
+    const service = await serviceRegistry.getService(nodeA);
+    expect(service.ratingCount).to.equal(2n);
+    expect(service.totalRating).to.equal(8n);
+
+    const avgBps = await serviceRegistry.getAverageRatingBps(nodeA);
+    expect(avgBps).to.equal(8000n);
+  });
+
+  it("rejects invalid rating values", async function () {
+    const { ownerA, ownerB, nodeA, serviceRegistry } = await deployFixture();
+
+    await registerService(
+      serviceRegistry,
+      ownerA,
+      nodeA,
+      "weather-api.eth",
+      "https://api.example.com/weather"
+    );
+
+    await expect(serviceRegistry.connect(ownerB).rateService(nodeA, 0))
+      .to.be.revertedWithCustomError(serviceRegistry, "InvalidRating")
+      .withArgs(0);
+
+    await expect(serviceRegistry.connect(ownerB).rateService(nodeA, 6))
+      .to.be.revertedWithCustomError(serviceRegistry, "InvalidRating")
+      .withArgs(6);
+  });
+
+  it("tracks active service count through register/deactivate/reactivate", async function () {
+    const { ownerA, nodeA, serviceRegistry } = await deployFixture();
+
+    await registerService(
+      serviceRegistry,
+      ownerA,
+      nodeA,
+      "weather-api.eth",
+      "https://api.example.com/weather"
+    );
+    expect(await serviceRegistry.getActiveServiceCount()).to.equal(1n);
+
+    await serviceRegistry.connect(ownerA).deactivateService(nodeA);
+    expect(await serviceRegistry.getActiveServiceCount()).to.equal(0n);
+
+    await registerService(
+      serviceRegistry,
+      ownerA,
+      nodeA,
+      "weather-api.eth",
+      "https://api.example.com/weather-v2"
+    );
+    expect(await serviceRegistry.getActiveServiceCount()).to.equal(1n);
+  });
 });

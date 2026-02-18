@@ -14,6 +14,8 @@ contract ServiceRegistry {
         string capabilitiesJson;
         address owner;
         bool active;
+        uint256 totalRating;
+        uint256 ratingCount;
         uint256 updatedAt;
     }
 
@@ -21,13 +23,20 @@ contract ServiceRegistry {
     error NotNodeOwner(bytes32 node, address caller);
     error EmptyEnsName();
     error EmptyEndpoint();
+    error InvalidRating(uint8 rating);
+    error AlreadyRated(bytes32 node, address rater);
+    error ServiceInactive(bytes32 node);
+    error ServiceAlreadyInactive(bytes32 node);
     error ServiceNotFound(bytes32 node);
 
     event ServiceRegistered(bytes32 indexed ensNode, string ensName, string endpoint, address indexed owner);
     event ServiceDeactivated(bytes32 indexed ensNode, address indexed owner);
+    event ServiceRated(bytes32 indexed ensNode, address indexed rater, uint8 rating, uint256 ratingCount);
 
     mapping(bytes32 => ServiceRecord) private services;
+    mapping(bytes32 => mapping(address => bool)) private ratingsByRater;
     bytes32[] private allServiceNodes;
+    uint256 private activeServiceCount;
     IENSRegistry public immutable ensRegistry;
 
     constructor(address ensRegistryAddress) {
@@ -59,6 +68,9 @@ contract ServiceRegistry {
         bool isNew = existing.owner == address(0);
         if (isNew) {
             allServiceNodes.push(ensNode);
+            activeServiceCount += 1;
+        } else if (!existing.active) {
+            activeServiceCount += 1;
         }
 
         services[ensNode] = ServiceRecord({
@@ -71,6 +83,8 @@ contract ServiceRegistry {
             capabilitiesJson: capabilitiesJson,
             owner: msg.sender,
             active: true,
+            totalRating: existing.totalRating,
+            ratingCount: existing.ratingCount,
             updatedAt: block.timestamp
         });
 
@@ -82,12 +96,50 @@ contract ServiceRegistry {
         if (service.owner == address(0)) {
             revert ServiceNotFound(ensNode);
         }
+        if (!service.active) {
+            revert ServiceAlreadyInactive(ensNode);
+        }
         _requireNodeOwner(ensNode);
 
         service.active = false;
+        activeServiceCount -= 1;
         service.updatedAt = block.timestamp;
 
         emit ServiceDeactivated(ensNode, msg.sender);
+    }
+
+    function rateService(bytes32 ensNode, uint8 rating) external {
+        ServiceRecord storage service = services[ensNode];
+        if (service.owner == address(0)) {
+            revert ServiceNotFound(ensNode);
+        }
+        if (!service.active) {
+            revert ServiceInactive(ensNode);
+        }
+        if (rating < 1 || rating > 5) {
+            revert InvalidRating(rating);
+        }
+        if (ratingsByRater[ensNode][msg.sender]) {
+            revert AlreadyRated(ensNode, msg.sender);
+        }
+
+        ratingsByRater[ensNode][msg.sender] = true;
+        service.totalRating += rating;
+        service.ratingCount += 1;
+        service.updatedAt = block.timestamp;
+
+        emit ServiceRated(ensNode, msg.sender, rating, service.ratingCount);
+    }
+
+    function getAverageRatingBps(bytes32 ensNode) external view returns (uint256) {
+        ServiceRecord memory service = services[ensNode];
+        if (service.owner == address(0)) {
+            revert ServiceNotFound(ensNode);
+        }
+        if (service.ratingCount == 0) {
+            return 0;
+        }
+        return (service.totalRating * 10_000) / (service.ratingCount * 5);
     }
 
     function getService(bytes32 ensNode) external view returns (ServiceRecord memory) {
@@ -107,14 +159,7 @@ contract ServiceRegistry {
             return (new ServiceRecord[](0), 0);
         }
 
-        uint256 activeCount = 0;
-        uint256 totalNodes = allServiceNodes.length;
-        for (uint256 i = 0; i < totalNodes; i++) {
-            if (services[allServiceNodes[i]].active) {
-                activeCount++;
-            }
-        }
-
+        uint256 activeCount = activeServiceCount;
         totalActive = activeCount;
         if (offset >= activeCount) {
             return (new ServiceRecord[](0), activeCount);
@@ -124,6 +169,7 @@ contract ServiceRegistry {
         uint256 size = remaining < limit ? remaining : limit;
         items = new ServiceRecord[](size);
 
+        uint256 totalNodes = allServiceNodes.length;
         uint256 seen = 0;
         uint256 written = 0;
         for (uint256 i = 0; i < totalNodes && written < size; i++) {
@@ -140,6 +186,10 @@ contract ServiceRegistry {
         }
 
         return (items, activeCount);
+    }
+
+    function getActiveServiceCount() external view returns (uint256) {
+        return activeServiceCount;
     }
 
     function _requireNodeOwner(bytes32 ensNode) private view {

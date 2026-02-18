@@ -4,15 +4,12 @@
  * Main entry point for the discovery API server
  */
 
-import express from "express";
-import { registerApiRoutes } from "./api";
+import { createApp } from "./app";
+import { loadEnv } from "./config/env";
 
-const app = express();
-const port = Number(process.env.PORT ?? 3000);
+const env = loadEnv();
+const app = createApp(env);
 
-app.use(express.json());
-registerApiRoutes(app);
-
-app.listen(port, () => {
-  console.log(`ENS x402 Discovery API running on port ${port}`);
+app.listen(env.port, () => {
+  console.log(`ENS x402 Discovery API running on port ${env.port}`);
 });

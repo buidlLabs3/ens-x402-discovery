@@ -32,48 +32,48 @@
 - [x] Implement service registration function
 - [x] Implement ownership verification
 - [x] Add service lookup functions
-- [ ] Add reputation/rating system (optional)
+- [x] Add reputation/rating system (optional)
 - [x] Write comprehensive tests
 - [ ] Deploy to testnet
 
 ### 2.3 Integration & Testing
-- [ ] Test ENS resolution with resolver extension
-- [ ] Test registry contract interactions
-- [ ] Integration tests for full flow
-- [ ] Gas optimization
+- [x] Test ENS resolution with resolver extension
+- [x] Test registry contract interactions
+- [x] Integration tests for full flow
+- [x] Gas optimization
 - [ ] Security audit preparation
 
 ## Phase 3: Backend API (Week 6-8)
 
 ### 3.1 Core API Setup
-- [ ] Set up Express.js server
-- [ ] Configure TypeScript
-- [ ] Set up environment configuration
-- [ ] Create API structure (routes, controllers, services)
-- [ ] Add error handling middleware
-- [ ] Add request validation
+- [x] Set up Express.js server
+- [x] Configure TypeScript
+- [x] Set up environment configuration
+- [x] Create API structure (routes, controllers, services)
+- [x] Add error handling middleware
+- [x] Add request validation
 
 ### 3.2 ENS Integration Service
-- [ ] Create ENS resolution service
+- [x] Create ENS resolution service
 - [ ] Implement resolver extension reading
-- [ ] Add caching layer for ENS resolutions
-- [ ] Handle ENS name validation
-- [ ] Add ownership verification logic
+- [x] Add caching layer for ENS resolutions
+- [x] Handle ENS name validation
+- [x] Add ownership verification logic
 - [ ] Write service tests
 
 ### 3.3 Discovery API Endpoints
-- [ ] GET /api/services/:ensName - Get service by ENS name
-- [ ] GET /api/services - List all services (with filters)
-- [ ] POST /api/services - Register new service
-- [ ] GET /api/services/search - Search services
+- [x] GET /api/services/:ensName - Get service by ENS name
+- [x] GET /api/services - List all services (with filters)
+- [x] POST /api/services - Register new service
+- [x] GET /api/services/search - Search services
 - [ ] Add OpenAPI/Swagger documentation
 - [ ] Write API tests
 
 ### 3.4 x402 Integration
 - [ ] Integrate x402 Bazaar extension
-- [ ] Add x402 endpoint validation
+- [x] Add x402 endpoint validation
 - [ ] Implement x402 payment verification
-- [ ] Create x402 service wrapper
+- [x] Create x402 service wrapper
 - [ ] Test x402 payment flows
 
 ## Phase 4: SDK Development (Week 9-11)
