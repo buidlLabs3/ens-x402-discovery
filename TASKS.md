@@ -55,26 +55,26 @@
 
 ### 3.2 ENS Integration Service
 - [x] Create ENS resolution service
-- [ ] Implement resolver extension reading
+- [x] Implement resolver extension reading
 - [x] Add caching layer for ENS resolutions
 - [x] Handle ENS name validation
 - [x] Add ownership verification logic
-- [ ] Write service tests
+- [x] Write service tests
 
 ### 3.3 Discovery API Endpoints
 - [x] GET /api/services/:ensName - Get service by ENS name
 - [x] GET /api/services - List all services (with filters)
 - [x] POST /api/services - Register new service
 - [x] GET /api/services/search - Search services
-- [ ] Add OpenAPI/Swagger documentation
-- [ ] Write API tests
+- [x] Add OpenAPI/Swagger documentation
+- [x] Write API tests
 
 ### 3.4 x402 Integration
-- [ ] Integrate x402 Bazaar extension
+- [x] Integrate x402 Bazaar extension
 - [x] Add x402 endpoint validation
-- [ ] Implement x402 payment verification
+- [x] Implement x402 payment verification
 - [x] Create x402 service wrapper
-- [ ] Test x402 payment flows
+- [x] Test x402 payment flows
 
 ## Phase 4: SDK Development (Week 9-11)
 

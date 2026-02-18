@@ -72,6 +72,38 @@ export class ServiceRegistryService {
     return this.services.get(this.ensService.normalizeEnsName(ensName)) ?? null;
   }
 
+  async getOrHydrateServiceByEnsName(ensName: string): Promise<RegisteredService | null> {
+    const normalized = this.ensService.normalizeEnsName(ensName);
+    const existing = this.services.get(normalized);
+    if (existing) {
+      return existing;
+    }
+
+    const resolved = await this.ensService.resolveEnsNameWithFallback(normalized);
+    if (!resolved || !resolved.endpoint || !resolved.paymentScheme || !resolved.network) {
+      return null;
+    }
+
+    const now = new Date().toISOString();
+    const hydrated: RegisteredService = {
+      ensName: normalized,
+      ensNode: resolved.ensNode,
+      owner: resolved.owner,
+      endpoint: resolved.endpoint,
+      paymentScheme: resolved.paymentScheme,
+      network: resolved.network,
+      description: resolved.description ?? "",
+      capabilities: resolved.capabilities ?? [],
+      facilitatorUrl: this.defaultFacilitatorUrl,
+      active: true,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.services.set(normalized, hydrated);
+    return hydrated;
+  }
+
   listServices(filters: ServiceListFilters = {}): RegisteredService[] {
     let results = Array.from(this.services.values());
 
@@ -92,6 +124,10 @@ export class ServiceRegistryService {
     return results;
   }
 
+  getDefaultFacilitatorUrl(): string {
+    return this.defaultFacilitatorUrl;
+  }
+
   searchServices(query: string): RegisteredService[] {
     const needle = query.trim().toLowerCase();
     if (needle.length === 0) {
@@ -104,6 +140,52 @@ export class ServiceRegistryService {
       }
       return item.capabilities.some((capability) => capability.toLowerCase().includes(needle));
     });
+  }
+
+  assertPaymentRequirementsMatchService(
+    service: RegisteredService,
+    paymentRequirements: Record<string, unknown>
+  ): void {
+    const scheme =
+      typeof paymentRequirements.scheme === "string" ? paymentRequirements.scheme : undefined;
+    const network =
+      typeof paymentRequirements.network === "string" ? paymentRequirements.network : undefined;
+    const resource =
+      typeof paymentRequirements.resource === "string" ? paymentRequirements.resource : undefined;
+
+    if (scheme !== undefined && scheme !== service.paymentScheme) {
+      throw new AppError(
+        400,
+        "payment_requirements_mismatch",
+        "Payment scheme does not match service registration",
+        {
+          expected: service.paymentScheme,
+          received: scheme,
+        }
+      );
+    }
+    if (network !== undefined && network !== service.network) {
+      throw new AppError(
+        400,
+        "payment_requirements_mismatch",
+        "Payment network does not match service registration",
+        {
+          expected: service.network,
+          received: network,
+        }
+      );
+    }
+    if (resource !== undefined && resource !== service.endpoint) {
+      throw new AppError(
+        400,
+        "payment_requirements_mismatch",
+        "Payment resource does not match service endpoint",
+        {
+          expected: service.endpoint,
+          received: resource,
+        }
+      );
+    }
   }
 
   private toResolverRecord(service: RegisteredService): EnsResolverRecord {

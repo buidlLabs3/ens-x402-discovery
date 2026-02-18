@@ -1,4 +1,4 @@
-import { createHash } from "node:crypto";
+import { namehash } from "ethers";
 import { AppError } from "../errors";
 
 export interface EnsResolverRecord {
@@ -17,11 +17,19 @@ interface CacheEntry {
   expiresAt: number;
 }
 
+export type EnsResolverReader = (
+  ensName: string,
+  ensNode: string
+) => Promise<EnsResolverRecord | null>;
+
 export class EnsService {
   private readonly resolverRecords = new Map<string, EnsResolverRecord>();
   private readonly cache = new Map<string, CacheEntry>();
 
-  constructor(private readonly cacheTtlMs: number) {}
+  constructor(
+    private readonly cacheTtlMs: number,
+    private readonly resolverReader?: EnsResolverReader
+  ) {}
 
   normalizeEnsName(ensName: string): string {
     return ensName.trim().toLowerCase();
@@ -35,7 +43,7 @@ export class EnsService {
 
   computeEnsNode(ensName: string): string {
     const normalized = this.normalizeEnsName(ensName);
-    return `0x${createHash("sha256").update(normalized).digest("hex")}`;
+    return namehash(normalized);
   }
 
   upsertResolverRecord(input: Omit<EnsResolverRecord, "ensNode"> & { ensNode?: string }): EnsResolverRecord {
@@ -53,10 +61,7 @@ export class EnsService {
     };
 
     this.resolverRecords.set(normalized, record);
-    this.cache.set(normalized, {
-      record,
-      expiresAt: Date.now() + this.cacheTtlMs,
-    });
+    this.cacheRecord(normalized, record);
 
     return record;
   }
@@ -69,12 +74,71 @@ export class EnsService {
     }
 
     const record = this.resolverRecords.get(normalized) ?? null;
-    this.cache.set(normalized, {
-      record,
-      expiresAt: Date.now() + this.cacheTtlMs,
-    });
+    this.cacheRecord(normalized, record);
 
     return record;
+  }
+
+  async readResolverExtension(ensName: string): Promise<EnsResolverRecord | null> {
+    const normalized = this.normalizeEnsName(ensName);
+    if (!this.validateEnsName(normalized)) {
+      throw new AppError(400, "invalid_ens_name", "Invalid ENS name format", {
+        ensName,
+      });
+    }
+
+    const cached = this.cache.get(normalized);
+    if (cached && cached.expiresAt > Date.now() && cached.record) {
+      return cached.record;
+    }
+
+    const local = this.resolverRecords.get(normalized);
+    if (local) {
+      this.cacheRecord(normalized, local);
+      return local;
+    }
+
+    if (!this.resolverReader) {
+      this.cacheRecord(normalized, null);
+      return null;
+    }
+
+    try {
+      const ensNode = this.computeEnsNode(normalized);
+      const remoteRecord = await this.resolverReader(normalized, ensNode);
+      if (!remoteRecord) {
+        this.cacheRecord(normalized, null);
+        return null;
+      }
+
+      const normalizedRecord: EnsResolverRecord = {
+        ...remoteRecord,
+        ensName: normalized,
+        ensNode,
+      };
+
+      this.resolverRecords.set(normalized, normalizedRecord);
+      this.cacheRecord(normalized, normalizedRecord);
+      return normalizedRecord;
+    } catch (error) {
+      throw new AppError(
+        502,
+        "resolver_extension_read_failed",
+        "Failed to read ENS resolver extension",
+        {
+          ensName: normalized,
+          reason: error instanceof Error ? error.message : "unknown_error",
+        }
+      );
+    }
+  }
+
+  async resolveEnsNameWithFallback(ensName: string): Promise<EnsResolverRecord | null> {
+    const local = this.resolveEnsName(ensName);
+    if (local) {
+      return local;
+    }
+    return this.readResolverExtension(ensName);
   }
 
   verifyOwnership(ensName: string, ownerAddress: string): boolean {
@@ -83,5 +147,12 @@ export class EnsService {
       return false;
     }
     return resolved.owner.toLowerCase() === ownerAddress.toLowerCase();
+  }
+
+  private cacheRecord(ensName: string, record: EnsResolverRecord | null): void {
+    this.cache.set(ensName, {
+      record,
+      expiresAt: Date.now() + this.cacheTtlMs,
+    });
   }
 }
