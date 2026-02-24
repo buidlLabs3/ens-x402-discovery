@@ -73,20 +73,21 @@ contract ServiceRegistry {
             activeServiceCount += 1;
         }
 
-        services[ensNode] = ServiceRecord({
-            ensNode: ensNode,
-            ensName: ensName,
-            endpoint: endpoint,
-            paymentScheme: paymentScheme,
-            network: network,
-            description: description,
-            capabilitiesJson: capabilitiesJson,
-            owner: msg.sender,
-            active: true,
-            totalRating: existing.totalRating,
-            ratingCount: existing.ratingCount,
-            updatedAt: block.timestamp
-        });
+        uint256 previousTotalRating = existing.totalRating;
+        uint256 previousRatingCount = existing.ratingCount;
+
+        existing.ensNode = ensNode;
+        existing.ensName = ensName;
+        existing.endpoint = endpoint;
+        existing.paymentScheme = paymentScheme;
+        existing.network = network;
+        existing.description = description;
+        existing.capabilitiesJson = capabilitiesJson;
+        existing.owner = msg.sender;
+        existing.active = true;
+        existing.totalRating = previousTotalRating;
+        existing.ratingCount = previousRatingCount;
+        existing.updatedAt = block.timestamp;
 
         emit ServiceRegistered(ensNode, ensName, endpoint, msg.sender);
     }

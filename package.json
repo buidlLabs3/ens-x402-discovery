@@ -7,6 +7,7 @@
     "dev": "tsx watch backend/src/index.ts",
     "build": "tsc",
     "test": "jest",
+    "test:e2e:local": "node scripts/e2e-local.js",
     "test:contracts": "hardhat test",
     "build:contracts": "hardhat compile",
     "lint": "eslint . --ext .ts",
