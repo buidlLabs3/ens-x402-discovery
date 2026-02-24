@@ -82,16 +82,16 @@
 - [x] Create SDK package structure
 - [x] Implement ENS name resolution
 - [x] Implement service registration
-- [ ] Implement service discovery
-- [ ] Add x402 client integration
-- [ ] Write SDK tests
-- [ ] Create usage examples
+- [x] Implement service discovery
+- [x] Add x402 client integration
+- [x] Write SDK tests
+- [x] Create usage examples
 - [ ] Publish to npm (private initially)
 
 ### 4.2 Go SDK
-- [ ] Create Go module structure
-- [ ] Implement core SDK functions
-- [ ] Add ENS integration
+- [x] Create Go module structure
+- [x] Implement core SDK functions
+- [x] Add ENS integration
 - [ ] Add x402 integration
 - [ ] Write tests
 - [ ] Create examples
