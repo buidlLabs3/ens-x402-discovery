@@ -81,7 +81,7 @@
 ### 4.1 TypeScript SDK
 - [x] Create SDK package structure
 - [x] Implement ENS name resolution
-- [ ] Implement service registration
+- [x] Implement service registration
 - [ ] Implement service discovery
 - [ ] Add x402 client integration
 - [ ] Write SDK tests
