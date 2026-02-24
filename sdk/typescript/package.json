@@ -7,6 +7,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "echo \"SDK tests not implemented yet\" && exit 0"
+    "test": "npm run build && node --test ./test/*.test.js"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0"
   }
 }
