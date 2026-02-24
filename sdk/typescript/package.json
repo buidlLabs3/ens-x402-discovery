@@ -1,0 +1,12 @@
+{
+  "name": "@ens-x402-discovery/sdk-typescript",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TypeScript SDK for ENS x402 Discovery",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "echo \"SDK tests not implemented yet\" && exit 0"
+  }
+}
